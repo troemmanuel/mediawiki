@@ -1,0 +1,18 @@
+- name: Création de la base de données MediaWiki
+  community.mysql.mysql_db:
+    name: "{{ mediawiki_name }}"
+    state: present
+    login_user: root
+    login_password: root
+    login_host: localhost
+
+- name: Création de l'utilisateur MediaWiki et attribution des privilèges
+  community.mysql.mysql_user:
+    name: "{{ mediawiki_db_user }}"
+    password: "{{ mediawiki_db_password }}"
+    priv: "{{ mediawiki_name }}.*:ALL"
+    host: "%"
+    state: present
+    login_user: root
+    login_password: root
+    login_host: localhost

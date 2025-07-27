@@ -1,0 +1,33 @@
+# Fichiers Python
+__pycache__/
+*.pyc
+
+# Fichiers temporaires et logs
+*.log
+*.tmp
+*.swp
+*.bak
+
+# Fichiers Ansible
+*.retry
+*.vault
+
+# Secrets et vault
+vault/
+.env
+
+# Docker
+*.pid
+docker-compose.override.yml
+
+# OS
+.DS_Store
+
+# Archives et bases de données
+*.tar.gz
+*.zip
+*.db
+*.sqlite
+
+# IDE et éditeurs de texte
+.idea/

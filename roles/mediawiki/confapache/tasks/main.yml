@@ -1,0 +1,77 @@
+# 0. Ajout du compte user ansible  dans le groupe www-data
+- name: Add root to group www-data
+  command:
+    usermod -a -G www-data root
+
+# 1. Creation du repertoire d'installation de MediaWiki
+- name: Create MediaWiki installation directory
+  file:
+    path: "{{ mediawiki_directory }}"
+    owner: "www-data"
+    group: "www-data"
+    state: directory
+
+# 1. Télécharger l'archive MediaWiki
+- name: Télécharger l'archive MediaWiki
+  get_url:
+    url: "{{ mediawiki_archive_url }}"
+    dest: "/tmp/mediawiki.tar.gz"
+    owner: "www-data"
+    group: "www-data"
+    mode: '0644'
+    force: yes
+
+# 2. Extraire l'archive en supprimant le dossier racine
+- name: Extraire MediaWiki dans le répertoire d'installation
+  unarchive:
+    src: "/tmp/mediawiki.tar.gz"
+    dest: "{{ mediawiki_directory }}"
+    remote_src: yes
+    extra_opts: [ "--strip-components=1" ]
+    owner: "www-data"
+    group: "www-data"
+
+# 3. Ajoute des droits d'ecriture pour le groupe www-data
+- name: Add g+w rights to MediaWiki directory
+  command:
+   chmod -R g+w {{ mediawiki_directory }}
+
+# 4. Execute la tache avec l'utilisateur root,
+# se place dans le repertoire de maintenance et execute
+# la commande de configuration si le fichier LocalSettings.php n'existe pas
+- name: "media wiki configuration"
+  command: >
+    php maintenance/install.php
+    --scriptpath /{{ mediawiki_name }}
+    --dbname mediawiki
+    --lang fr
+    --dbuser {{ mediawiki_db_user }}
+    --dbpass {{ mediawiki_db_password }}
+    --pass {{ mediawiki_db_password }}
+    --dbserver {{ mediawiki_db_host }}
+    --server http://{{ item }}
+    "{{ mediawiki_title }}"
+    "{{ mediawiki_admin_user }}"
+  args:
+    chdir: "{{ mediawiki_directory }}" # Se place dans le repertoire d'installation de MediaWiki
+    creates: "{{ mediawiki_directory }}/LocalSettings.php" # Vérifie si le fichier LocalSettings.php existe déjà
+  run_once: true
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups.apache }}"
+
+
+
+# 5. Execute la tache avec l'utilisateur root,
+# se place dans le repertoire de maintenance et execute
+# la commande de de mise a jour de la base de donnees une seule fois
+- name: "media wiki update"
+  become: yes
+  become_user: root
+  command:
+    php  maintenance/update.php --quick
+  args:
+    chdir: "{{ mediawiki_directory }}"
+  # La mise a jour de la base de donnees ne doit etre faite qu'une seule fois
+  run_once: true
+  register: update_result
+  changed_when: "'...done' in update_result.stdout or 'Nothing to do' in update_result.stdout"

@@ -1,0 +1,7 @@
+---
+- name : "Installation d'Apache"
+  hosts: http1
+  roles:
+    - apache
+  vars:
+    php_install: true

@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  http1:
+    image: debian:11
+    container_name: http1
+    hostname: http1
+    privileged: true
+    ports:
+      - "2222:22"
+      - "8080:80"
+    command: >
+      bash -c "apt update &&
+               apt install -y openssh-server sudo python3 &&
+               mkdir -p /run/sshd &&
+               echo 'root:root' | chpasswd &&
+               sed -i 's/^#PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config &&
+               service ssh start &&
+               tail -f /dev/null"
+
+  bdd1:
+    image: debian:11
+    container_name: bdd1
+    hostname: bdd1
+    privileged: true
+    ports:
+      - "2223:22"
+    command: >
+      bash -c "apt update &&
+               apt install -y openssh-server sudo python3 &&
+               mkdir -p /run/sshd &&
+               echo 'root:root' | chpasswd &&
+               sed -i 's/^#PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config &&
+               service ssh start &&
+               tail -f /dev/null"

@@ -1,0 +1,38 @@
+---
+# Base de données MediaWiki
+mediawiki_db_user: "mediawiki"
+mediawiki_db_password:  !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  35313234636466303131376135653130663566633937623535613365343564333363643832363066
+  3636316439356362653639636262333032386439623738650a653366633237346639663338636335
+  61303932623763613461343634623431336663313234613736636639383236373633373232646138
+  3062633539396635620a343537303239646636393736626263383437616530316466646632626561
+  6330
+
+# User Admin et password MediaWiki
+mediawiki_admin_user: "admin"
+mediawiki_admin_password:  !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  35313234636466303131376135653130663566633937623535613365343564333363643832363066
+  3636316439356362653639636262333032386439623738650a653366633237346639663338636335
+  61303932623763613461343634623431336663313234613736636639383236373633373232646138
+  3062633539396635620a343537303239646636393736626263383437616530316466646632626561
+  6330
+  
+# nom du mediawiki et son titre
+mediawiki_name: "mediawiki"
+mediawiki_title: "Mon super MediaWiki !"
+
+# Repertoire d'installation de MediaWiki
+mediawiki_directory: "/var/www/html/{{mediawiki_name}}"
+
+# Repertoire de maintenance de MediaWiki
+mediawiki_maintenance_dir: "{{mediawiki_directory}}/maintenance"
+
+# Definie le premier noeud du groupe mariadb
+mediawiki_db_host: "{{groups.db.0 }}"
+
+# L'url des sources MediaWiki
+mediawiki_archive_url: "https://releases.wikimedia.org/mediawiki/1.39/mediawiki-1.39.0.tar.gz"
+
+vault : "AnsibleOC"

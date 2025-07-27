@@ -1,0 +1,33 @@
+# 1. Installation des paquets MariaDB et des dépendances nécessaires pour le fonctionnement de MariaDB.
+- name: Install MariaDB and dependencies
+  apt:
+    name:
+      - mariadb-server
+      - mariadb-client
+      - python3-mysqldb
+    state: present
+
+# 2. Activation du service MariaDB
+- name: MariaDB service activation
+  service:
+    name: mariadb
+    state: started
+    enabled: yes
+
+# 3. Installe sed pour pouvoir modifier le fichier de configuration
+- name: "Installer sed"
+  apt:
+    name: sed
+    state: present
+  become: true
+
+# 4. Active l'ecoute sur tous les ports IPv4
+- name: "Modifier le bind-address dans 50-server.cnf"
+  shell: "sed -i 's/172.0.0.1/0.0.0.0/g' /etc/mysql/mariadb.conf.d/50-server.cnf"
+  become: true
+
+# 5. Restart du service MariaDB pour appliquer les modifications
+- name: Restart MariaDB service
+  service:
+    name: mariadb
+    state: restarted
