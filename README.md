@@ -2,6 +2,38 @@
 
 Ce projet a pour but d'apprendre à automatiser le déploiement d'une application web (MediaWiki) avec Ansible et Docker. Il est conçu pour découvrir les bases de l'infrastructure as code, la modularité et la sécurité des mots de passe.
 
+## Qu'est-ce que MediaWiki ?
+
+MediaWiki est un logiciel libre de gestion de contenu collaboratif, utilisé pour créer des sites web de type wiki. Il est le moteur de Wikipédia et de nombreux autres projets de la Fondation Wikimedia. MediaWiki permet à plusieurs utilisateurs de rédiger, modifier et organiser des pages web, avec un historique des modifications et une gestion fine des droits d'accès.
+
+## Présentation d'Ansible et concepts de base
+
+Ansible est un outil d'automatisation et d'orchestration d'infrastructure. Il permet de déployer, configurer et gérer des serveurs de façon déclarative et reproductible, sans agent à installer sur les machines cibles.
+
+- **Noeud manager (contrôleur)** : c'est la machine depuis laquelle Ansible est lancé. Elle contient les playbooks, l'inventaire et pilote l'automatisation.
+- **Noeud managé (cible)** : ce sont les machines sur lesquelles Ansible va exécuter les tâches (installation, configuration, etc.). Elles sont définies dans l'inventaire.
+
+Dans notre projet :
+- Le **noeud manager** est ta machine locale (celle où tu exécutes Ansible).
+- Les **noeuds managés** sont les deux conteneurs Docker :
+  - `http1` (serveur web Apache/PHP)
+  - `bdd1` (serveur base de données MariaDB)
+
+L'inventaire `hosts.ini` précise ces noeuds et leurs paramètres de connexion. Ansible va se connecter en SSH à chaque conteneur pour exécuter les rôles et playbooks.
+
+## Architecture du déploiement
+
+Dans ce projet, MediaWiki est déployé sur une architecture composée de deux serveurs simulés par des conteneurs Docker :
+- **Serveur web (http1)** : basé sur Debian, il héberge Apache et PHP pour servir l'application MediaWiki.
+- **Serveur base de données (bdd1)** : basé sur Debian, il héberge MariaDB pour stocker toutes les données du wiki (pages, utilisateurs, historique).
+
+L'installation et la configuration sont automatisées avec Ansible :
+- Les rôles Ansible installent et configurent Apache, MariaDB et MediaWiki sur les bons serveurs.
+- Les mots de passe et secrets sont sécurisés avec Ansible Vault.
+- Les playbooks orchestrent l'installation complète et la liaison entre les services.
+
+Cette architecture illustre la séparation des responsabilités (web et base de données), facilite la maintenance et met en pratique les bonnes méthodes d'infrastructure as code.
+
 ## Structure du projet
 
 - **ansible.cfg** : Configuration d'Ansible (chemin inventaire, options globales).
@@ -44,6 +76,23 @@ Ce projet a pour but d'apprendre à automatiser le déploiement d'une applicatio
    - MariaDB : `ansible-playbook -i hosts.ini install-mariadb.yml`
    - MediaWiki : `ansible-playbook -i hosts.ini install-mediawiki.yml`
 
+## Commandes utiles
+
+- **Déployer Apache** :
+  ```bash
+  ansible-playbook -i hosts.ini --user root --become --ask-become-pass install-apache.yml
+  ```
+
+- **Déployer MariaDB** :
+  ```bash
+  ansible-playbook -i hosts.ini --user root --become --ask-become-pass install-mariadb.yml
+  ```
+
+- **Déployer MediaWiki (avec mot de passe Vault)** :
+  ```bash
+  ansible-playbook -i hosts.ini --user root --become --ask-become-pass --ask-vault-pass install-mediawiki.yml
+  ```
+
 ## Points pédagogiques
 
 - Comprendre la structure d'un projet Ansible modulaire.
@@ -61,4 +110,3 @@ Ce projet a pour but d'apprendre à automatiser le déploiement d'une applicatio
 ---
 
 Explorez chaque rôle et chaque playbook pour comprendre leur fonctionnement et les adapter à vos besoins !
-
